@@ -7,9 +7,15 @@
 //
 
 import UIKit
-
-class LoginVC: UIViewController {
-
+import Firebase
+class LoginVC: UIViewController,UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        nameTextField.resignFirstResponder()
+        passwordTextField.resignFirstResponder()
+        emailTextField.resignFirstResponder()
+        
+        return true
+    }
     let inputContainerView : UIView = {
         let view = UIView()
         view.backgroundColor = UIColor.white
@@ -29,6 +35,8 @@ class LoginVC: UIViewController {
       let textfield = UITextField()
         textfield.placeholder = "Name"
         textfield.translatesAutoresizingMaskIntoConstraints = false
+        textfield.returnKeyType = .done
+        textfield.resignFirstResponder()
         return textfield
     }()
     let nameSeperatorView : UIView = {
@@ -41,6 +49,7 @@ class LoginVC: UIViewController {
         let textfield = UITextField()
         textfield.placeholder = "Email"
         textfield.translatesAutoresizingMaskIntoConstraints = false
+        textfield.returnKeyType = .done
         return textfield
     }()
     let emailSeperatorView : UIView = {
@@ -54,6 +63,9 @@ class LoginVC: UIViewController {
         textfield.placeholder = "Password"
         textfield.translatesAutoresizingMaskIntoConstraints = false
         textfield.isSecureTextEntry = true
+        textfield.returnKeyType = .done
+        textfield.resignFirstResponder()
+        
         return textfield
     }()
    
@@ -64,12 +76,40 @@ class LoginVC: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(UIColor.white, for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+
+        button.addTarget(self, action: #selector(handleRegister), for: .touchUpInside)
         return button
     }()
-    
+  @objc func handleRegister() {
+    guard let email = emailTextField.text, let  password = passwordTextField.text , let name = nameTextField.text else {
+        print("Form is not valid")
+        return
+    }
+    Firebase.Auth.auth().createUser(withEmail: email, password: password) { (user, error) in
+        if error != nil {
+            print(error.debugDescription)
+            return
+        }
+        guard let uid = user?.uid else{
+            return
+        }
+        let ref = Database.database().reference(fromURL: _DATABASE_REF)
+        let childRef = ref.child("users").child(uid)
+        let values = ["Names": name , "Email": email , "Password": password]
+        childRef.updateChildValues(values, withCompletionBlock: { (err, ref) in
+            if err != nil {
+                print(err.debugDescription)
+                return
+            }
+            print("Onur : Kullanıcı Kaydedildi")
+        })
+    }
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        nameTextField.delegate = self
+        passwordTextField.delegate = self
+        emailTextField.delegate = self
         view.backgroundColor = UIColor(r: 61, g: 91, b: 151)
         view.addSubview(inputContainerView)
         view.addSubview(loginRegisterBtn)
@@ -91,6 +131,7 @@ class LoginVC: UIViewController {
         loginRegisterBtn.topAnchor.constraint(equalTo: inputContainerView.bottomAnchor, constant: 12).isActive = true
         loginRegisterBtn.widthAnchor.constraint(equalTo: inputContainerView.widthAnchor).isActive = true
         loginRegisterBtn.heightAnchor.constraint(equalToConstant: 35).isActive = true
+     
     }
     func setupContainerView (){
         inputContainerView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
@@ -123,6 +164,7 @@ class LoginVC: UIViewController {
         passwordTextField.widthAnchor.constraint(equalTo : inputContainerView.widthAnchor).isActive = true
         passwordTextField.heightAnchor.constraint(equalTo: inputContainerView.heightAnchor, multiplier: 1/3).isActive = true
         view.addSubview(profileimageview)
+       
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
