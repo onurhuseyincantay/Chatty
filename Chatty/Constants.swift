@@ -7,5 +7,6 @@
 //
 
 import Foundation
-
+import Firebase
 let  _DATABASE_REF = "https://chatty-a120c.firebaseio.com/"
+
