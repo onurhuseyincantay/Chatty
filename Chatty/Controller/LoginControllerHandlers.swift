@@ -17,6 +17,7 @@ extension LoginVC:UIImagePickerControllerDelegate ,UINavigationControllerDelegat
             handleLogin()
         }else{
             handleRegister()
+            
         }
     }
     func handleLogin()  {
@@ -64,12 +65,12 @@ extension LoginVC:UIImagePickerControllerDelegate ,UINavigationControllerDelegat
             
             
         }
+            self.dismiss(animated: true, completion: nil)
     }
     
     func registeringUserWithUID(uid: String ,values : [String:AnyObject])  {
         let ref = Database.database().reference(fromURL: _DATABASE_REF)
         let childRef = ref.child("users").child(uid)
-        
         childRef.updateChildValues(values, withCompletionBlock: { (err, ref) in
             if err != nil {
                 print(err.debugDescription)
