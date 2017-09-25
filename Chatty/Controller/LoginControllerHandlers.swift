@@ -47,9 +47,8 @@ extension LoginVC:UIImagePickerControllerDelegate ,UINavigationControllerDelegat
                 return
             }
             let imageName = NSUUID().uuidString
-            let storageRef = Firebase.Storage.storage().reference().child("profile_images").child("\(imageName).png")
-            
-            if let uploadData = UIImagePNGRepresentation(self.profileimageview.image!){
+            let storageRef = Firebase.Storage.storage().reference().child("profile_images").child("\(imageName).jpg")
+            if let profileImage = self.profileimageview.image,let uploadData = UIImageJPEGRepresentation(profileImage, 0.1){
                 storageRef.putData(uploadData, metadata: nil, completion: { (metadata, error) in
                     if error != nil {
                         print(error.debugDescription)
@@ -65,7 +64,6 @@ extension LoginVC:UIImagePickerControllerDelegate ,UINavigationControllerDelegat
             
             
         }
-            self.dismiss(animated: true, completion: nil)
     }
     
     func registeringUserWithUID(uid: String ,values : [String:AnyObject])  {
@@ -76,7 +74,13 @@ extension LoginVC:UIImagePickerControllerDelegate ,UINavigationControllerDelegat
                 print(err.debugDescription)
                 return
             }
-            print("Onur : Kullanıcı Kaydedildi")
+            let user = User()
+            user.name = values["Names"] as? String
+            user.email = values["Email"] as? String
+            user.profileImageUrl = values["ProfileImageURL"] as? String
+            self.messagesController?.setupNavBarWithUser(user: user)
+//            self.messagesController?.navigationItem.title = values["Names"] as? String
+            self.dismiss(animated: true, completion: nil)
         })
     }
     

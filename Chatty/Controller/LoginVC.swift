@@ -9,6 +9,7 @@
 import UIKit
 import Firebase
 class LoginVC: UIViewController,UITextFieldDelegate {
+    var messagesController : MessagesVC?
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         nameTextField.resignFirstResponder()
         passwordTextField.resignFirstResponder()

@@ -24,6 +24,7 @@ class newMessageVC: UITableViewController{
                 let user = User()
                 user.name = dict["Names"] as? String
                 user.email = dict["Email"] as? String
+                user.userId = snapshot.key
                 user.profileImageUrl = dict["ProfileImageURL"] as? String
                 self.users.append(user)
                 print(user.name!)
@@ -48,38 +49,15 @@ class newMessageVC: UITableViewController{
         
         return cell
     }
+    var messagesController : MessagesVC?
+  override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        dismiss(animated: true) {
+            let user = self.users[indexPath.row]
+            self.messagesController?.showChatControllerForUser(user: user)
+            print("MessageController geldi")
+        }
+    }
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return users.count
     }
 }
-
-class UserCell: UITableViewCell {
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        textLabel?.frame = CGRect(x: 64, y: textLabel!.frame.origin.y-2, width: textLabel!.frame.width, height: textLabel!.frame.height)
-        detailTextLabel?.frame = CGRect(x: 64, y: detailTextLabel!.frame.origin.y+2, width: detailTextLabel!.frame.width, height: detailTextLabel!.frame.height)
-    }
-    let profileImageView : UIImageView = {
-       let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.contentMode = .scaleAspectFill
-        imageView.layer.cornerRadius = 24
-        imageView.layer.masksToBounds = true
-        return imageView
-    }()
-    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
-        addSubview(profileImageView)
-        //added constraints to an custom UIimageView
-        profileImageView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 8).isActive = true
-        profileImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
-        profileImageView.widthAnchor.constraint(equalToConstant: 48).isActive = true
-        profileImageView.heightAnchor.constraint(equalToConstant: 48).isActive = true
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-}
-

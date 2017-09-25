@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		614682811F782FCC00AAF6BE /* ChatVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614682801F782FCC00AAF6BE /* ChatVC.swift */; };
+		614682831F78E2E700AAF6BE /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614682821F78E2E600AAF6BE /* Message.swift */; };
+		614682861F78F5B700AAF6BE /* UserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614682851F78F5B700AAF6BE /* UserCell.swift */; };
 		6192DBE71F755D7E003093DB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6192DBE61F755D7E003093DB /* AppDelegate.swift */; };
 		6192DBE91F755D7E003093DB /* MessagesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6192DBE81F755D7E003093DB /* MessagesVC.swift */; };
 		6192DBEC1F755D7E003093DB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6192DBEA1F755D7E003093DB /* Main.storyboard */; };
@@ -24,6 +27,9 @@
 
 /* Begin PBXFileReference section */
 		2515C240DE02077DE086A7C9 /* Pods-Chatty.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chatty.release.xcconfig"; path = "Pods/Target Support Files/Pods-Chatty/Pods-Chatty.release.xcconfig"; sourceTree = "<group>"; };
+		614682801F782FCC00AAF6BE /* ChatVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatVC.swift; sourceTree = "<group>"; };
+		614682821F78E2E600AAF6BE /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		614682851F78F5B700AAF6BE /* UserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCell.swift; sourceTree = "<group>"; };
 		6192DBE31F755D7E003093DB /* Chatty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chatty.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6192DBE61F755D7E003093DB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6192DBE81F755D7E003093DB /* MessagesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesVC.swift; sourceTree = "<group>"; };
@@ -71,6 +77,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		614682841F78F54900AAF6BE /* View */ = {
+			isa = PBXGroup;
+			children = (
+				614682851F78F5B700AAF6BE /* UserCell.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		6192DBDA1F755D7E003093DB = {
 			isa = PBXGroup;
 			children = (
@@ -92,6 +106,7 @@
 		6192DBE51F755D7E003093DB /* Chatty */ = {
 			isa = PBXGroup;
 			children = (
+				614682841F78F54900AAF6BE /* View */,
 				61DF03AD1F77BD57003054E7 /* Helper */,
 				61CA84261F76907500B60074 /* Model */,
 				6192DC001F75957D003093DB /* Constants.swift */,
@@ -113,6 +128,7 @@
 				6192DBE81F755D7E003093DB /* MessagesVC.swift */,
 				61CA84221F7652E700B60074 /* LoginControllerHandlers.swift */,
 				61CA84241F7683C300B60074 /* newMessageVC.swift */,
+				614682801F782FCC00AAF6BE /* ChatVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -121,6 +137,7 @@
 			isa = PBXGroup;
 			children = (
 				61CA84271F76909000B60074 /* User.swift */,
+				614682821F78E2E600AAF6BE /* Message.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -257,13 +274,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				614682811F782FCC00AAF6BE /* ChatVC.swift in Sources */,
 				6192DBE91F755D7E003093DB /* MessagesVC.swift in Sources */,
 				61CA84251F7683C300B60074 /* newMessageVC.swift in Sources */,
 				6192DBE71F755D7E003093DB /* AppDelegate.swift in Sources */,
 				61DF03AF1F77BD67003054E7 /* Extensions.swift in Sources */,
 				6192DBFA1F756239003093DB /* LoginVC.swift in Sources */,
 				61CA84281F76909000B60074 /* User.swift in Sources */,
+				614682831F78E2E700AAF6BE /* Message.swift in Sources */,
 				6192DC011F75957D003093DB /* Constants.swift in Sources */,
+				614682861F78F5B700AAF6BE /* UserCell.swift in Sources */,
 				61CA84231F7652E700B60074 /* LoginControllerHandlers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

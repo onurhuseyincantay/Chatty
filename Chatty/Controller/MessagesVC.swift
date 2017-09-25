@@ -11,15 +11,55 @@ import Firebase
 
 class MessagesVC: UITableViewController {
 
+    let celId = "CellId"
     override func viewDidLoad() {
         super.viewDidLoad()
        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(handleLogout))
         isUserLoggedIn()
         navigationItem.rightBarButtonItem = UIBarButtonItem(title:"Messages", style: .plain, target: self, action: #selector(handleNewMessage))
-       
+       isUserLoggedIn()
+        tableView.register(UserCell.self, forCellReuseIdentifier: celId)
+        observeMessages()
+    }
+    var messages = [Message]()
+    var MessagesDict = [String:Message]()
+    func observeMessages()  {
+        let ref = Firebase.Database.database().reference().child("messages")
+        ref.observe(.childAdded, with: { (snapshot) in
+            let mesage = Message()
+            if let dict = snapshot.value as? Dictionary<String,AnyObject> {
+                mesage.fromId = dict["fromId"] as? String
+                mesage.text = dict["text"] as? String
+                mesage.timestamp = dict["timestamp"] as? NSNumber
+                mesage.toId = dict["toId"] as? String
+               self.messages.append(mesage)
+                if let toId = mesage.toId{
+                    self.MessagesDict[toId] = mesage
+                self.messages = Array(self.MessagesDict.values)
+                    self.messages.sort(by: { (message1, message2) -> Bool in
+                        
+                        return message1.timestamp!.intValue > message2.timestamp!.intValue
+                    })
+                }
+                self.tableView.reloadData()
+            }
+        }, withCancel: nil)
+    }
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return self.messages.count
+    }
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: celId, for: indexPath) as! UserCell
+        let message = messages[indexPath.row]
+        cell.message = message
+        return cell
+    }
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 72
     }
    @objc func handleNewMessage()  {
         let messageController = newMessageVC()
+        messageController.messagesController = self
         let navController = UINavigationController(rootViewController: messageController)
         present(navController ,animated: true , completion : nil)
     
@@ -28,14 +68,24 @@ class MessagesVC: UITableViewController {
         if Firebase.Auth.auth().currentUser?.uid == nil {
             perform(#selector(handleLogout), with: nil, afterDelay: 0)
         }else{
-            let uid = Firebase.Auth.auth().currentUser?.uid
-            Database.database().reference().child("users").child(uid!).observe(.value, with: { (snapshot) in
-                if let dict = snapshot.value as? Dictionary <String,AnyObject>{
-                    self.navigationItem.title = dict["Names"] as? String
-                }
-            }, withCancel: nil)
-            
+           
+            fetchUserandSetupNavBarTitle()
         }
+    }
+    func fetchUserandSetupNavBarTitle()  {
+        guard let uid =  Firebase.Auth.auth().currentUser?.uid else {
+            print("Uid is nill")
+            return
+        }
+        Database.database().reference().child("users").child(uid).observe(.value, with: { (snapshot) in
+            if let dict = snapshot.value as? Dictionary <String,AnyObject>{
+                let user = User()
+                user.name = dict["Names"] as? String
+                user.email = dict["Email"] as? String
+                user.profileImageUrl = dict["ProfileImageURL"] as? String
+                self.setupNavBarWithUser(user: user)
+            }
+        }, withCancel: nil)
     }
    @objc func handleLogout() {
     do {
@@ -44,9 +94,52 @@ class MessagesVC: UITableViewController {
         print(error.debugDescription)
     }
      let loginController = LoginVC()
+        loginController.messagesController = self
     present(loginController ,animated: true , completion : nil)
     }
-
+    func setupNavBarWithUser (user: User){
+        let titleView = UIView()
+        titleView.isUserInteractionEnabled = true
+        titleView.frame = CGRect(x: 0, y: 0, width: 100, height: 40)
+        titleView.backgroundColor = UIColor.brown
+         let containerView = UIView()
+        containerView.isUserInteractionEnabled = true
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        titleView.addSubview(containerView)
+        let profileImageView = UIImageView()
+        profileImageView.translatesAutoresizingMaskIntoConstraints = false
+        profileImageView.contentMode = .scaleAspectFill
+        profileImageView.layer.cornerRadius = 20
+        profileImageView.clipsToBounds = true
+        profileImageView.isUserInteractionEnabled = true
+        if let profileImageURl = user.profileImageUrl {
+            profileImageView.loadImagesWithCache(urlString: profileImageURl)
+        }
+        containerView.addSubview(profileImageView)
+        profileImageView.leftAnchor.constraint(equalTo: containerView.leftAnchor).isActive = true
+        profileImageView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
+        profileImageView.widthAnchor.constraint(equalToConstant: 40).isActive = true
+        profileImageView.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        let nameLabel = UILabel()
+        containerView.addSubview(nameLabel)
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        nameLabel.text = user.name
+        nameLabel.leftAnchor.constraint(equalTo: profileImageView.rightAnchor, constant : 8).isActive = true
+        nameLabel.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor).isActive = true
+        nameLabel.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
+        nameLabel.heightAnchor.constraint(equalTo: profileImageView.heightAnchor).isActive = true
+        containerView.centerXAnchor.constraint(equalTo: titleView.centerXAnchor).isActive = true
+        containerView.centerYAnchor.constraint(equalTo: titleView.centerYAnchor).isActive = true
+        
+        self.navigationItem.titleView = titleView
+    }
+    func showChatControllerForUser(user : User){
+    print("basıldı.")
+    let chatController = ChatVC(collectionViewLayout: UICollectionViewLayout())
+        chatController.user = user
+    navigationController?.pushViewController(chatController, animated: true)
+        
+    }
   
 
 }
