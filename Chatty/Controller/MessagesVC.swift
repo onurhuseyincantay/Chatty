@@ -17,32 +17,53 @@ class MessagesVC: UITableViewController {
        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(handleLogout))
         isUserLoggedIn()
         navigationItem.rightBarButtonItem = UIBarButtonItem(title:"Messages", style: .plain, target: self, action: #selector(handleNewMessage))
-       isUserLoggedIn()
         tableView.register(UserCell.self, forCellReuseIdentifier: celId)
-        observeMessages()
+        isUserLoggedIn()
     }
+
     var messages = [Message]()
     var MessagesDict = [String:Message]()
+    
+    func observeUserMessages()  {
+        guard let uid = Firebase.Auth.auth().currentUser?.uid else{
+        return
+        }
+        let ref = Firebase.Database.database().reference().child("user-messages").child(uid)
+        ref.observe(.childAdded, with: { (snapshot) in
+            let messageId = snapshot.key
+            let messagesReference = Firebase.Database.database().reference().child("messages").child(messageId)
+            messagesReference.observeSingleEvent(of: .value, with: { (snapshot) in
+                 let mesage = Message()
+                if let dict = snapshot.value as? Dictionary<String,AnyObject> {
+                    mesage.fromId = dict["fromId"] as? String
+                    mesage.text = dict["text"] as? String
+                    mesage.timestamp = dict["timestamp"] as? NSNumber
+                    mesage.toId = dict["toId"] as? String
+                    self.messages.append(mesage)
+                    if let chatPartnerId = mesage.getChatPartnerId(){
+                        self.MessagesDict[chatPartnerId] = mesage
+                        self.messages = Array(self.MessagesDict.values)
+                        self.messages.sort(by: { (message1, message2) -> Bool in
+                            
+                            return message1.timestamp!.intValue > message2.timestamp!.intValue
+                        })
+                    }
+                    self.tableView.reloadData()
+                }
+                
+                
+            }, withCancel: nil)
+        }, withCancel: nil)
+    }
+    
+    
+    
+    
     func observeMessages()  {
         let ref = Firebase.Database.database().reference().child("messages")
         ref.observe(.childAdded, with: { (snapshot) in
-            let mesage = Message()
-            if let dict = snapshot.value as? Dictionary<String,AnyObject> {
-                mesage.fromId = dict["fromId"] as? String
-                mesage.text = dict["text"] as? String
-                mesage.timestamp = dict["timestamp"] as? NSNumber
-                mesage.toId = dict["toId"] as? String
-               self.messages.append(mesage)
-                if let toId = mesage.toId{
-                    self.MessagesDict[toId] = mesage
-                self.messages = Array(self.MessagesDict.values)
-                    self.messages.sort(by: { (message1, message2) -> Bool in
-                        
-                        return message1.timestamp!.intValue > message2.timestamp!.intValue
-                    })
-                }
-                self.tableView.reloadData()
-            }
+           
+        
         }, withCancel: nil)
     }
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -57,6 +78,27 @@ class MessagesVC: UITableViewController {
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 72
     }
+    
+   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let message = messages[indexPath.row]
+        guard let chatPartnerId = message.getChatPartnerId() else {
+            return
+        }
+        let ref = Firebase.Database.database().reference().child("users").child(chatPartnerId)
+    ref.observeSingleEvent(of: .value, with: { (snapshot) in
+        print(snapshot)
+        if let dict = snapshot.value as? Dictionary<String,AnyObject> {
+            let user = User()
+            user.name = dict["Names"] as? String
+            user.email = dict["Email"] as? String
+            user.profileImageUrl = dict["ProfileImageURL"] as? String
+            user.userId = chatPartnerId
+            self.showChatControllerForUser(user: user)
+        }
+    }, withCancel: nil)
+            
+        }
+    
    @objc func handleNewMessage()  {
         let messageController = newMessageVC()
         messageController.messagesController = self
@@ -98,6 +140,10 @@ class MessagesVC: UITableViewController {
     present(loginController ,animated: true , completion : nil)
     }
     func setupNavBarWithUser (user: User){
+        messages.removeAll()
+        MessagesDict.removeAll()
+        tableView.reloadData()
+        observeUserMessages()
         let titleView = UIView()
         titleView.isUserInteractionEnabled = true
         titleView.frame = CGRect(x: 0, y: 0, width: 100, height: 40)
@@ -135,7 +181,7 @@ class MessagesVC: UITableViewController {
     }
     func showChatControllerForUser(user : User){
     print("basıldı.")
-    let chatController = ChatVC(collectionViewLayout: UICollectionViewLayout())
+    let chatController = ChatVC(collectionViewLayout: UICollectionViewFlowLayout())
         chatController.user = user
     navigationController?.pushViewController(chatController, animated: true)
         

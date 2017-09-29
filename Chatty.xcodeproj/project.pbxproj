@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		612CE5A61F7D162A00154435 /* ChatMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 612CE5A51F7D162A00154435 /* ChatMessageCell.swift */; };
 		614682811F782FCC00AAF6BE /* ChatVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614682801F782FCC00AAF6BE /* ChatVC.swift */; };
 		614682831F78E2E700AAF6BE /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614682821F78E2E600AAF6BE /* Message.swift */; };
 		614682861F78F5B700AAF6BE /* UserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614682851F78F5B700AAF6BE /* UserCell.swift */; };
@@ -27,6 +28,7 @@
 
 /* Begin PBXFileReference section */
 		2515C240DE02077DE086A7C9 /* Pods-Chatty.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chatty.release.xcconfig"; path = "Pods/Target Support Files/Pods-Chatty/Pods-Chatty.release.xcconfig"; sourceTree = "<group>"; };
+		612CE5A51F7D162A00154435 /* ChatMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageCell.swift; sourceTree = "<group>"; };
 		614682801F782FCC00AAF6BE /* ChatVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatVC.swift; sourceTree = "<group>"; };
 		614682821F78E2E600AAF6BE /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		614682851F78F5B700AAF6BE /* UserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCell.swift; sourceTree = "<group>"; };
@@ -81,6 +83,7 @@
 			isa = PBXGroup;
 			children = (
 				614682851F78F5B700AAF6BE /* UserCell.swift */,
+				612CE5A51F7D162A00154435 /* ChatMessageCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -283,6 +286,7 @@
 				61CA84281F76909000B60074 /* User.swift in Sources */,
 				614682831F78E2E700AAF6BE /* Message.swift in Sources */,
 				6192DC011F75957D003093DB /* Constants.swift in Sources */,
+				612CE5A61F7D162A00154435 /* ChatMessageCell.swift in Sources */,
 				614682861F78F5B700AAF6BE /* UserCell.swift in Sources */,
 				61CA84231F7652E700B60074 /* LoginControllerHandlers.swift in Sources */,
 			);

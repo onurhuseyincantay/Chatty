@@ -13,30 +13,37 @@ class UserCell: UITableViewCell {
     
     var message : Message? {
         didSet{
-            if let toId = message?.toId{
-                let ref = Firebase.Database.database().reference().child("users").child(toId)
-                ref.observeSingleEvent(of: .value, with: { (snapshot) in
-                    if let dict = snapshot.value as? Dictionary<String,AnyObject> {
-                        
-                        self.textLabel?.text = dict["Names"] as? String
-                        if let profileImageUrl = dict["ProfileImageURL"] as? String{
-                            self.profileImageView.loadImagesWithCache(urlString: profileImageUrl)
-                        }
-                    }
-                    if let seconds = self.message?.timestamp?.doubleValue {
-                        let date = Date(timeIntervalSince1970: seconds)
-                        let dateFormatter = DateFormatter()
-                        dateFormatter.dateFormat = "hh:mm:ss a"
-                        let dateString = dateFormatter.string(from: date)
-                        self.timeLabel.text = dateString
-                    }
-                    self.detailTextLabel?.text = self.message?.text
-                }, withCancel: nil)
-            }
+           
+            self.setupNameAndProfileImg()
+            
+            if let seconds = self.message?.timestamp?.doubleValue {
+                let date = Date(timeIntervalSince1970: seconds)
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "hh:mm:ss a"
+                let dateString = dateFormatter.string(from: date)
+                self.timeLabel.text = dateString
         }
+        }}
+    func setupNameAndProfileImg()  {
+        if let Id = message?.getChatPartnerId(){
+            let ref = Firebase.Database.database().reference().child("users").child(Id)
+            ref.observeSingleEvent(of: .value, with: { (snapshot) in
+                if let dict = snapshot.value as? Dictionary<String,AnyObject> {
+                    
+                    self.textLabel?.text = dict["Names"] as? String
+                    if let profileImageUrl = dict["ProfileImageURL"] as? String{
+                        self.profileImageView.loadImagesWithCache(urlString: profileImageUrl)
+                    }
+                }
+                
+            }, withCancel: nil)
+            
+        }
+    self.detailTextLabel?.text = self.message?.text
     }
+
     
-    
+   
     
     override func layoutSubviews() {
         super.layoutSubviews()

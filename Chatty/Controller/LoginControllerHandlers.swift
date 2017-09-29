@@ -11,13 +11,12 @@ import UIKit
 import Firebase
 
 extension LoginVC:UIImagePickerControllerDelegate ,UINavigationControllerDelegate{
-   
+    
  @objc  func handleRegisterAndLogin(){
         if segmentedControl.selectedSegmentIndex == 0 {
             handleLogin()
         }else{
             handleRegister()
-            
         }
     }
     func handleLogin()  {

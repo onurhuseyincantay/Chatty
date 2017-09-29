@@ -13,4 +13,6 @@ class User {
     var email : String?
     var profileImageUrl : String?
     var userId : String?
+    
+   
 }
