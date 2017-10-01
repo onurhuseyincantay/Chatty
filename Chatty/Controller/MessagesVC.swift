@@ -48,7 +48,9 @@ class MessagesVC: UITableViewController {
                             return message1.timestamp!.intValue > message2.timestamp!.intValue
                         })
                     }
-                    self.tableView.reloadData()
+                   
+                    self.timer?.invalidate()
+                    self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.HandleReloadDataDelay), userInfo: nil, repeats: false)
                 }
                 
                 
@@ -56,16 +58,12 @@ class MessagesVC: UITableViewController {
         }, withCancel: nil)
     }
     
-    
-    
-    
-    func observeMessages()  {
-        let ref = Firebase.Database.database().reference().child("messages")
-        ref.observe(.childAdded, with: { (snapshot) in
-           
-        
-        }, withCancel: nil)
+    var timer : Timer?
+  @objc func HandleReloadDataDelay()  {
+        print("TableReloaded")
+        self.tableView.reloadData()
     }
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.messages.count
     }
