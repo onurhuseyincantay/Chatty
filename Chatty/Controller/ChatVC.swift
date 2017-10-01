@@ -23,6 +23,7 @@ class ChatVC: UICollectionViewController,UITextFieldDelegate,UICollectionViewDel
         textField.placeholder = "Enter Messages ... "
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.delegate = self
+        textField.returnKeyType = .done
         return textField
     }()
     
@@ -49,19 +50,19 @@ class ChatVC: UICollectionViewController,UITextFieldDelegate,UICollectionViewDel
         let textfield = UITextField()
         textfield.backgroundColor = UIColor.brown
         containerView.addSubview(textfield)
-        let sendButton = UIButton(type: .system)
-        containerView.addSubview(sendButton)
-        sendButton.addTarget(self, action: #selector(handleSend), for: .touchUpInside)
-        sendButton.setTitle("Send", for: .normal)
-        sendButton.translatesAutoresizingMaskIntoConstraints = false
-        sendButton.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
-        sendButton.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-        sendButton.widthAnchor.constraint(equalToConstant: 80).isActive = true
-        sendButton.heightAnchor.constraint(equalTo: containerView.heightAnchor).isActive = true
+//        let sendButton = UIButton(type: .system)
+//        containerView.addSubview(sendButton)
+//        sendButton.addTarget(self, action: #selector(handleSend), for: .touchUpInside)
+//        sendButton.setTitle("Send", for: .normal)
+//        sendButton.translatesAutoresizingMaskIntoConstraints = false
+//        sendButton.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
+//        sendButton.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
+//        sendButton.widthAnchor.constraint(equalToConstant: 80).isActive = true
+//        sendButton.heightAnchor.constraint(equalTo: containerView.heightAnchor).isActive = true
         containerView.addSubview(inputTextField)
         inputTextField.leftAnchor.constraint(equalTo: containerView.leftAnchor ,constant: 8).isActive = true
         inputTextField.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-        inputTextField.rightAnchor.constraint(equalTo: sendButton.rightAnchor).isActive = true
+        inputTextField.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
         inputTextField.heightAnchor.constraint(equalTo: containerView.heightAnchor).isActive = true
         let seperatorView = UIView ()
         seperatorView.backgroundColor = UIColor(r: 220, g: 220, b: 220)
@@ -109,10 +110,10 @@ class ChatVC: UICollectionViewController,UITextFieldDelegate,UICollectionViewDel
 //    }
     
     func observeMessages(){
-        guard let uid = Firebase.Auth.auth().currentUser?.uid else {
+        guard let uid = Firebase.Auth.auth().currentUser?.uid, let toId = user?.userId else {
             return
         }
-        let ref = Firebase.Database.database().reference().child("user-messages").child(uid)
+        let ref = Firebase.Database.database().reference().child("user-messages").child(uid).child(toId)
         ref.observe(.childAdded, with: { (snapshot) in
             let messagesRef = Firebase.Database.database().reference().child("messages").child(snapshot.key)
             messagesRef.observeSingleEvent(of: .value, with: { (snapshot) in
@@ -203,20 +204,20 @@ class ChatVC: UICollectionViewController,UITextFieldDelegate,UICollectionViewDel
         containerViewConstraint?.isActive = true
         containerView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
         containerView.heightAnchor.constraint(equalToConstant: 50).isActive = true
-
-        let sendButton = UIButton(type: .system)
-        containerView.addSubview(sendButton)
-        sendButton.addTarget(self, action: #selector(handleSend), for: .touchUpInside)
-        sendButton.setTitle("Send", for: .normal)
-        sendButton.translatesAutoresizingMaskIntoConstraints = false
-        sendButton.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
-        sendButton.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-        sendButton.widthAnchor.constraint(equalToConstant: 80).isActive = true
-        sendButton.heightAnchor.constraint(equalTo: containerView.heightAnchor).isActive = true
+//
+//        let sendButton = UIButton(type: .system)
+//        containerView.addSubview(sendButton)
+//        sendButton.addTarget(self, action: #selector(handleSend), for: .touchUpInside)
+//        sendButton.setTitle("Send", for: .normal)
+//        sendButton.translatesAutoresizingMaskIntoConstraints = false
+//        sendButton.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
+//        sendButton.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
+//        sendButton.widthAnchor.constraint(equalToConstant: 80).isActive = true
+//        sendButton.heightAnchor.constraint(equalTo: containerView.heightAnchor).isActive = true
         containerView.addSubview(inputTextField)
         inputTextField.leftAnchor.constraint(equalTo: containerView.leftAnchor ,constant: 8).isActive = true
         inputTextField.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-        inputTextField.rightAnchor.constraint(equalTo: sendButton.rightAnchor).isActive = true
+        inputTextField.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
         inputTextField.heightAnchor.constraint(equalTo: containerView.heightAnchor).isActive = true
         let seperatorView = UIView ()
         seperatorView.backgroundColor = UIColor(r: 220, g: 220, b: 220)
@@ -246,10 +247,15 @@ class ChatVC: UICollectionViewController,UITextFieldDelegate,UICollectionViewDel
         }
         
         self.inputTextField.text = nil
-        let userMessageRef = Firebase.Database.database().reference().child("user-messages").child(fromId)
+        let userMessageRef = Firebase.Database.database().reference().child("user-messages").child(fromId).child(toId)
+        
+        
+        
+        
+        
         let messageId = childRef.key
         userMessageRef.updateChildValues([messageId : 1])
-        let userGetMessageRef = Firebase.Database.database().reference().child("user-messages").child(toId)
+        let userGetMessageRef = Firebase.Database.database().reference().child("user-messages").child(toId).child(fromId)
         userGetMessageRef.updateChildValues([messageId : 1])
     }
     

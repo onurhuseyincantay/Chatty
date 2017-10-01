@@ -30,34 +30,43 @@ class MessagesVC: UITableViewController {
         }
         let ref = Firebase.Database.database().reference().child("user-messages").child(uid)
         ref.observe(.childAdded, with: { (snapshot) in
-            let messageId = snapshot.key
-            let messagesReference = Firebase.Database.database().reference().child("messages").child(messageId)
-            messagesReference.observeSingleEvent(of: .value, with: { (snapshot) in
-                 let mesage = Message()
-                if let dict = snapshot.value as? Dictionary<String,AnyObject> {
-                    mesage.fromId = dict["fromId"] as? String
-                    mesage.text = dict["text"] as? String
-                    mesage.timestamp = dict["timestamp"] as? NSNumber
-                    mesage.toId = dict["toId"] as? String
-                    self.messages.append(mesage)
-                    if let chatPartnerId = mesage.getChatPartnerId(){
-                        self.MessagesDict[chatPartnerId] = mesage
-                        self.messages = Array(self.MessagesDict.values)
-                        self.messages.sort(by: { (message1, message2) -> Bool in
-                            
-                            return message1.timestamp!.intValue > message2.timestamp!.intValue
-                        })
-                    }
-                   
-                    self.timer?.invalidate()
-                    self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.HandleReloadDataDelay), userInfo: nil, repeats: false)
-                }
+            let userId = snapshot.key
+            Firebase.Database.database().reference().child("user-messages").child(uid).child(userId).observe(.childAdded, with: { (snapshot) in
                 
+                let messageId = snapshot.key
+                self.fetchMessageAndAttemptReload(messageId: messageId)
                 
-            }, withCancel: nil)
+                }, withCancel: nil)
+            
         }, withCancel: nil)
     }
     
+    private func fetchMessageAndAttemptReload(messageId : String){
+        let messagesReference = Firebase.Database.database().reference().child("messages").child(messageId)
+        messagesReference.observeSingleEvent(of: .value, with: { (snapshot) in
+            let mesage = Message()
+            if let dict = snapshot.value as? Dictionary<String,AnyObject> {
+                mesage.fromId = dict["fromId"] as? String
+                mesage.text = dict["text"] as? String
+                mesage.timestamp = dict["timestamp"] as? NSNumber
+                mesage.toId = dict["toId"] as? String
+                self.messages.append(mesage)
+                if let chatPartnerId = mesage.getChatPartnerId(){
+                    self.MessagesDict[chatPartnerId] = mesage
+                    
+                }
+                self.attempReloadTable()
+            }
+        }, withCancel: nil)
+    }
+    private func attempReloadTable(){
+        self.messages = Array(self.MessagesDict.values)
+        self.messages.sort(by: { (message1, message2) -> Bool in
+            return message1.timestamp!.intValue > message2.timestamp!.intValue
+        })
+        self.timer?.invalidate()
+        self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.HandleReloadDataDelay), userInfo: nil, repeats: false)
+    }
     var timer : Timer?
   @objc func HandleReloadDataDelay()  {
         print("TableReloaded")
