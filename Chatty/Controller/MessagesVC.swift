@@ -19,8 +19,31 @@ class MessagesVC: UITableViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title:"Messages", style: .plain, target: self, action: #selector(handleNewMessage))
         tableView.register(UserCell.self, forCellReuseIdentifier: celId)
         isUserLoggedIn()
+        tableView.allowsMultipleSelectionDuringEditing = true
     }
-
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+  override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+    guard let uid = Firebase.Auth.auth().currentUser?.uid else {
+        return
+    }
+    let message = messages[indexPath.row]
+    if let chatPartnerId = message.getChatPartnerId() {
+        Firebase.Database.database().reference().child("user-messages").child(uid).child(chatPartnerId).removeValue(completionBlock: { (error, ref) in
+            if error != nil {
+                print(error.debugDescription)
+                return
+            }
+            self.MessagesDict.removeValue(forKey: chatPartnerId)
+            self.attempReloadTable()
+            
+            //            self.messages.remove(at: indexPath.row)
+//            self.tableView.deleteRows(at: [indexPath], with: .automatic)
+        })
+        
+    }
+    }
     var messages = [Message]()
     var MessagesDict = [String:Message]()
     
@@ -38,6 +61,10 @@ class MessagesVC: UITableViewController {
                 
                 }, withCancel: nil)
             
+        }, withCancel: nil)
+        ref.observeSingleEvent(of: .childRemoved, with: { (snapshot) in
+            self.MessagesDict.removeValue(forKey: snapshot.key)
+            self.attempReloadTable()
         }, withCancel: nil)
     }
     
